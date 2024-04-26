@@ -1,0 +1,38 @@
+version: '3.9'
+
+services:
+    database:
+        image: registry-1.docker.io/library/postgres:14
+        container_name: job_service_db
+        environment:
+            POSTGRES_USER: nestjs
+            POSTGRES_PASSWORD: nestjs
+            POSTGRES_DB: nestjs
+        ports:
+            - '5433:5432'
+        volumes:
+            - ./volumes/data/postgres:/var/lib/postgresql/data
+        networks:
+            - jobservice
+
+    cache:
+        image: registry-1.docker.io/grokzen/redis-cluster:6.2.11
+        environment:
+            IP: "0.0.0.0"
+            SENTINEL: "false"
+            STANDALONE: "false"
+            MASTERS: "3"
+            SLAVES_PER_MASTER: "0"
+            INITIAL_PORT: "7004"
+        volumes:
+            - ./volumes/data/redis:/redis-data:delegated
+        container_name: jobservice_redis
+        hostname: cache
+        ports:
+            - '7004-7007:7004-7007'
+        networks:
+            - jobservice
+
+
+networks:
+    jobservice: {}
